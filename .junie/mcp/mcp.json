@@ -1,0 +1,20 @@
+{
+    "mcpServers": {
+        "laravel-boost": {
+            "command": "/Users/davidmarek/Library/Application Support/Herd/bin/php83",
+            "args": [
+                "/Users/davidmarek/Herd/test-generator-laravel/artisan",
+                "boost:mcp"
+            ]
+        },
+        "herd": {
+            "command": "/Users/davidmarek/Library/Application Support/Herd/bin/php83",
+            "args": [
+                "/Applications/Herd.app/Contents/Resources/herd-mcp.phar"
+            ],
+            "env": {
+                "SITE_PATH": "/Users/davidmarek/Herd/test-generator-laravel"
+            }
+        }
+    }
+}
