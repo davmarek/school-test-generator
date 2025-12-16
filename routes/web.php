@@ -15,6 +15,10 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('/tests', \App\Livewire\Tests\Index::class)->middleware(['auth'])->name('tests.index');
+Route::get('/tests/{test}', \App\Livewire\Tests\Edit::class)->middleware(['auth'])->name('tests.edit');
+Route::get('/tests/{test}/generate', \App\Livewire\Tests\Generate::class)->middleware(['auth'])->name('tests.generate');
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
