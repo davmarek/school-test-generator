@@ -91,8 +91,8 @@
                 <div class="space-y-2">
                     @foreach($ungroupedQuestions as $question)
                         <div class="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg" wire:key="q-{{ $question->id }}">
-                            <div class="flex-1 grid grid-cols-3 place-items-start items-center gap-2">
-                                <p class="font-medium truncate">{{ $question->text }}</p>
+                            <div class="flex-1 grid grid-cols-3 place-items-start items-center gap-4">
+                                <p class="font-medium ">{{ $question->text }}</p>
                                 <div>
                                     <flux:badge size="sm">{{ $question->type->label() }}</flux:badge>
                                     @if($question->is_mandatory)
@@ -100,8 +100,6 @@
                                     @endif
                                 </div>
                                 <span class="text-xs text-zinc-500">Weight: {{ $question->weight }}</span>
-                                {{-- <div class="flex gap-2 text-xs text-zinc-500 mt-1">
-                                </div> --}}
                             </div>
                             <div class="flex gap-2">
                                 <flux:button icon="pencil" size="sm" variant="ghost" wire:click="openQuestionModal(null, {{ $question->id }})" />
@@ -132,15 +130,15 @@
                     <div class="space-y-2">
                         @foreach($group->questions as $question)
                             <div class="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg" wire:key="q-{{ $question->id }}">
-                                <div class="flex-1">
-                                    <p class="font-medium truncate">{{ $question->text }}</p>
-                                    <div class="flex gap-2 text-xs text-zinc-500 mt-1">
+                                <div class="flex-1 grid grid-cols-3 place-items-start items-center gap-4">
+                                    <p class="font-medium">{{ $question->text }}</p>
+                                    <div>
                                         <flux:badge size="sm">{{ $question->type->label() }}</flux:badge>
-                                        <span>Weight: {{ $question->weight }}</span>
                                         @if($question->is_mandatory)
                                             <flux:badge size="sm" color="amber">Mandatory</flux:badge>
                                         @endif
                                     </div>
+                                    <span class="text-xs text-zinc-500">Weight: {{ $question->weight }}</span>
                                 </div>
                                 <div class="flex gap-2">
                                     <flux:button icon="pencil" size="sm" variant="ghost" wire:click="openQuestionModal({{ $group->id }}, {{ $question->id }})" />
