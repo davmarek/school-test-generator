@@ -1,6 +1,6 @@
-<?php
-use App\Enums\QuestionType;
-?>
+@php
+    use App\Enums\QuestionType;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,8 +8,22 @@ use App\Enums\QuestionType;
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ $test->name }}</title>
     <style>
+        @font-face {
+            font-family: 'Geist';
+            font-style: normal;
+            font-weight: normal;
+            src: url({{ storage_path('fonts/Geist-Regular.ttf') }}) format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Geist';
+            font-style: normal;
+            font-weight: bold;
+            src: url({{ storage_path('fonts/Geist-Bold.ttf') }}) format('truetype');
+        }
+
         body {
-            font-family: 'DejaVu Sans', sans-serif;
+            font-family: 'Geist', sans-serif;
             line-height: 1.5;
             color: #1a202c;
         }
@@ -91,13 +105,52 @@ use App\Enums\QuestionType;
             width: 15%;
         }
 
+        .checkbox,
+        .radio {
+            vertical-align: middle;
+        }
+
         .checkbox {
             display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 20px;
+            height: 20px;
             border: 1px solid #000;
             margin-right: 8px;
         }
+
+        .radio {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #000;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+
+        .closed-options-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .closed-options-table tr {
+            padding-bottom: 1rem;
+        }
+
+        .closed-options-table td:nth-child(1) {
+            width: auto;
+            padding-top: 0.7rem;
+            padding-right: 0.5rem;
+            vertical-align: top;
+        }
+
+        .closed-options-table td:nth-child(2) {
+            width: 100%;
+            padding-bottom: 0.8rem;
+        }
+
+
+
 
         .line-answer {
             border-bottom: 1px solid #cbd5e0;
@@ -132,13 +185,18 @@ use App\Enums\QuestionType;
                     </div>
 
                     @if ($question->type === QuestionType::CLOSED)
-                        <div class="options">
+                        @php
+                            $correctCount = $question->options->where('is_correct', true)->count();
+                            $iconClass = $correctCount <= 1 ? 'radio' : 'checkbox';
+                        @endphp
+                        <table class="closed-options-table">
                             @foreach ($question->options as $option)
-                                <div class="option">
-                                    <span class="checkbox"></span> {{ $option->text }}
-                                </div>
+                                <tr>
+                                    <td><span class="{{ $iconClass }}"></span></td>
+                                    <td>{{ $option->text }}</td>
+                                </tr>
                             @endforeach
-                        </div>
+                        </table>
                     @elseif($question->type === QuestionType::TRUE_FALSE)
                         <table class="true-false-table">
                             <thead>

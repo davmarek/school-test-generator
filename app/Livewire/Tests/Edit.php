@@ -32,7 +32,7 @@ class Edit extends Component
 
     public function updated($property, $value)
     {
-        if ($property === 'questionForm.type' && $value === QuestionType::TRUE_FALSE) {
+        if ($property === 'questionForm.type' && $value === QuestionType::TRUE_FALSE->value) {
             if (empty($this->questionForm['text'])) {
                 $this->questionForm['text'] = 'Pravda/neprada? (V tabulce označte křížkem (X), zda je tvrzení pravdivé nebo nepravdivé.)';
             }
