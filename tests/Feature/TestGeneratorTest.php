@@ -83,3 +83,35 @@ it('generates pdf', function () {
         ->set('config.ungrouped', 1)
         ->call('generate');
 });
+
+it('prefills true false question text', function () {
+    $user = User::factory()->create();
+    $test = Test::factory()->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->test(Edit::class, ['test' => $test])
+        ->set('questionForm.text', '')
+        ->set('questionForm.type', 'true_false')
+        ->assertSet('questionForm.text', 'Pravda/neprada? (V tabulce označte křížkem (X), zda je tvrzení pravdivé nebo nepravdivé.)');
+});
+
+it('does not overwrite existing question text when switching to true false', function () {
+    $user = User::factory()->create();
+    $test = Test::factory()->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->test(Edit::class, ['test' => $test])
+        ->set('questionForm.text', 'Existing text')
+        ->set('questionForm.type', 'true_false')
+        ->assertSet('questionForm.text', 'Existing text');
+});
+
+it('dispatches option-added event when adding option', function () {
+    $user = User::factory()->create();
+    $test = Test::factory()->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->test(Edit::class, ['test' => $test])
+        ->call('addOption')
+        ->assertDispatched('option-added');
+});

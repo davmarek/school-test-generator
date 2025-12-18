@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Tests;
 
+use App\Enums\QuestionType;
 use Livewire\Component;
 
 class Edit extends Component
@@ -28,6 +29,15 @@ class Edit extends Component
         'is_mandatory' => false,
         'options' => [], // For closed questions
     ];
+
+    public function updated($property, $value)
+    {
+        if ($property === 'questionForm.type' && $value === QuestionType::TRUE_FALSE) {
+            if (empty($this->questionForm['text'])) {
+                $this->questionForm['text'] = 'Pravda/neprada? (V tabulce označte křížkem (X), zda je tvrzení pravdivé nebo nepravdivé.)';
+            }
+        }
+    }
 
     public function mount(\App\Models\Test $test)
     {
@@ -110,6 +120,7 @@ class Edit extends Component
     public function addOption()
     {
         $this->questionForm['options'][] = ['id' => null, 'text' => '', 'is_correct' => false];
+        $this->dispatch('option-added');
     }
 
     public function removeOption($index)

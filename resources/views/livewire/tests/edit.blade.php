@@ -54,7 +54,15 @@
 
             @if(in_array($questionForm['type'], ['closed', 'true_false']))
                 <flux:separator />
-                <div class="space-y-3">
+                <div class="space-y-3"
+                     x-data
+                     @option-added.window="$nextTick(() => {
+                        const inputs = $el.querySelectorAll('input:not([type=checkbox]):not([type=hidden])');
+                        if (inputs.length) {
+                            inputs[inputs.length - 1].focus();
+                        }
+                     })"
+                >
                     <div class="flex justify-between items-center">
                         <flux:heading size="sm">Options</flux:heading>
                         <flux:button size="sm" icon="plus" wire:click="addOption">Add Option</flux:button>
