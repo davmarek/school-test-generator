@@ -4,20 +4,13 @@ use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
+use App\Livewire\Tests;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
-
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-
-Route::get('/tests', \App\Livewire\Tests\Index::class)->middleware(['auth'])->name('tests.index');
-Route::get('/tests/{test}', \App\Livewire\Tests\Edit::class)->middleware(['auth'])->name('tests.edit');
-Route::get('/tests/{test}/generate', \App\Livewire\Tests\Generate::class)->middleware(['auth'])->name('tests.generate');
 
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
@@ -36,4 +29,10 @@ Route::middleware(['auth'])->group(function () {
             ),
         )
         ->name('two-factor.show');
+
+    Route::prefix('/tests')->name('tests.')->group(function () {
+        Route::get('/', Tests\Index::class)->name('index');
+        Route::get('/{test}', Tests\Edit::class)->name('edit');
+        Route::get('/{test}/generate', Tests\Generate::class)->name('generate');
+    });
 });

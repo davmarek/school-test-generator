@@ -149,9 +149,6 @@
             padding-bottom: 0.8rem;
         }
 
-
-
-
         .line-answer {
             border-bottom: 1px solid #cbd5e0;
             height: 20px;
@@ -201,9 +198,9 @@
                         <table class="true-false-table">
                             <thead>
                                 <tr>
-                                    <th>Otázka</td>
-                                    <th>Pravda</td>
-                                    <th>Nepravda</td>
+                                    <th></th>
+                                    <th>Pravda</th>
+                                    <th>Nepravda</th>
                                 </tr>
                             </thead>
                             @foreach ($question->options as $option)

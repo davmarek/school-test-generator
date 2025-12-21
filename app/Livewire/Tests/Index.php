@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
+/**
+ * Livewire component for viewing and creating tests.
+ */
 class Index extends Component
 {
     #[Validate('required|string|min:1|max:255')]

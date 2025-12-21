@@ -2,14 +2,17 @@
 
 namespace App\Livewire\Tests;
 
+use App\Models\Test;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class Generate extends Component
 {
     // use Spatie\LaravelPdf\Facades\Pdf; // Removed from here
 
-    public \App\Models\Test $test;
+    public Test $test;
 
     // Config: groupId => count. Key 'ungrouped' for ungrouped.
     public $config = [];
@@ -18,9 +21,9 @@ class Generate extends Component
 
     public $copies = 1;
 
-    public function mount(\App\Models\Test $test)
+    public function mount(Test $test)
     {
-        \Illuminate\Support\Facades\Gate::authorize('view', $test);
+        Gate::authorize('view', $test);
 
         $this->test = $test;
 
@@ -54,11 +57,13 @@ class Generate extends Component
         $rules = [
             'copies' => 'required|integer|min:1|max:50',
         ];
+
         foreach ($this->limits as $key => $limit) {
             $rules["config.$key"] = "required|integer|min:{$limit['min']}|max:{$limit['max']}";
         }
         $this->validate($rules);
 
+        // Generate tests
         $generatedTests = [];
 
         for ($i = 0; $i < $this->copies; $i++) {
@@ -98,7 +103,7 @@ class Generate extends Component
             $generatedTests[] = $questionsWithPoints;
         }
 
-        $pdfName = \Illuminate\Support\Str::slug($this->test->name).'-'.now()->format('Y-m-d').'.pdf';
+        $pdfName = Str::slug($this->test->name).'-'.now()->format('Y-m-d').'.pdf';
 
         $pdf = Pdf::loadView('pdf.test', [
             'test' => $this->test,
@@ -115,6 +120,7 @@ class Generate extends Component
             return;
         }
 
+        // Get all mandatory questions
         $mandatory = $pool->where('is_mandatory', true);
 
         // Add all mandatory (assuming validation ensured count >= mandatory)
@@ -122,21 +128,29 @@ class Generate extends Component
             $collection->push($q);
         }
 
+        // How many more questions are needed?
         $needed = $count - $mandatory->count();
         if ($needed > 0) {
-            $random = $pool->where('is_mandatory', false);
-            if ($random->count() >= $needed) {
+            $not_mandatory = $pool->where('is_mandatory', false);
+            if ($not_mandatory->count() >= $needed) {
                 // Pick random
-                $picked = $random->random($needed);
+                $picked = $not_mandatory->random($needed);
                 foreach ($picked as $q) {
                     $collection->push($q);
                 }
             } else {
                 // Should not happen if max validation passed
-                foreach ($random as $q) {
+                foreach ($not_mandatory as $q) {
                     $collection->push($q);
                 }
             }
+        }
+    }
+
+    public function includeAll()
+    {
+        foreach ($this->limits as $key => $limit) {
+            $this->config[$key] = $limit['max'];
         }
     }
 
