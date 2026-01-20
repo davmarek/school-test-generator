@@ -113,5 +113,37 @@ it('dispatches option-added event when adding option', function () {
     Livewire::actingAs($user)
         ->test(Edit::class, ['test' => $test])
         ->call('addOption')
-        ->assertDispatched('option-added');
+    ->assertDispatched('option-added');
+});
+
+it('calculates integer points correctly', function () {
+    Pdf::shouldReceive('loadView')
+        ->once()
+        ->with('pdf.test', \Mockery::on(function ($data) {
+            $questions = $data['generatedTests'][0];
+            $sum = $questions->sum('calculated_points');
+            $isInteger = $questions->every(fn ($q) => is_int($q->calculated_points));
+            
+            return $sum === 100 && $isInteger;
+        }))
+        ->andReturnSelf();
+
+    Pdf::shouldReceive('output')->andReturn('PDF CONTENT');
+
+    $user = User::factory()->create();
+    $test = Test::factory()->create(['user_id' => $user->id, 'max_points' => 100]);
+    
+    // Create 3 questions with equal weight. 100 / 3 = 33.33
+    // Should be distributed as 34, 33, 33 (or similar) summing to 100.
+    $questions = \App\Models\Question::factory()->count(3)->create([
+        'test_id' => $test->id,
+        'weight' => 1,
+        'is_mandatory' => true,
+        'type' => 'open',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(Generate::class, ['test' => $test])
+        ->set('config.ungrouped', 3)
+        ->call('generate');
 });

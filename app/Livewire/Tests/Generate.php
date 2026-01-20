@@ -53,55 +53,9 @@ class Generate extends Component
 
     public function generate()
     {
-        // Validation
-        $rules = [
-            'copies' => 'required|integer|min:1|max:50',
-        ];
+        $this->validateConfiguration();
 
-        foreach ($this->limits as $key => $limit) {
-            $rules["config.$key"] = "required|integer|min:{$limit['min']}|max:{$limit['max']}";
-        }
-        $this->validate($rules);
-
-        // Generate tests
-        $generatedTests = [];
-
-        for ($i = 0; $i < $this->copies; $i++) {
-            $selectedQuestions = collect();
-
-            // Ungrouped
-            $ungrouped = $this->test->questions()->whereNull('group_id')->get();
-            $this->pickQuestions($ungrouped, $this->config['ungrouped'], $selectedQuestions);
-
-            // Groups
-            foreach ($this->test->groups as $group) {
-                $questions = $group->questions;
-                $this->pickQuestions($questions, $this->config[$group->id], $selectedQuestions);
-            }
-
-            // Calculate Points
-            $totalWeight = $selectedQuestions->sum('weight');
-            $pointFactor = $totalWeight > 0 ? $this->test->max_points / $totalWeight : 0;
-
-            $questionsWithPoints = $selectedQuestions->map(function ($q) use ($pointFactor) {
-                // Clone needed to avoid modifying original instance if reused (stateless HTTP, probably fine, but safer)
-                $q = clone $q;
-                $q->calculated_points = round($q->weight * $pointFactor, 2);
-
-                if ($q->type === \App\Enums\QuestionType::CLOSED) {
-                    // Start shuffle options
-                    $q->setRelation('options', $q->options->shuffle());
-                }
-
-                return $q;
-            });
-
-            // Shuffle questions for extra randomness? User didn't ask, but "different tests" might imply order too.
-            // Let's stick to just picking logic for now, but maybe shuffle the final list?
-            // The prompt says "random ones", and implicitly we pick randoms.
-            // Let's just store this instance.
-            $generatedTests[] = $questionsWithPoints;
-        }
+        $generatedTests = $this->generateTests();
 
         $pdfName = Str::slug($this->test->name).'-'.now()->format('Y-m-d').'.pdf';
 
@@ -112,6 +66,104 @@ class Generate extends Component
         ]);
 
         return response()->streamDownload(fn () => print ($pdf->output()), $pdfName);
+    }
+
+    private function validateConfiguration()
+    {
+        $rules = [
+            'copies' => 'required|integer|min:1|max:50',
+        ];
+
+        foreach ($this->limits as $key => $limit) {
+            $rules["config.$key"] = "required|integer|min:{$limit['min']}|max:{$limit['max']}";
+        }
+        $this->validate($rules);
+    }
+
+    private function generateTests()
+    {
+        $generatedTests = [];
+
+        for ($i = 0; $i < $this->copies; $i++) {
+            $selectedQuestions = $this->selectQuestions();
+            $generatedTests[] = $this->calculatePoints($selectedQuestions);
+        }
+
+        return $generatedTests;
+    }
+
+    private function selectQuestions()
+    {
+        $selectedQuestions = collect();
+
+        // Ungrouped
+        $ungrouped = $this->test->questions()->whereNull('group_id')->get();
+        $this->pickQuestions($ungrouped, $this->config['ungrouped'], $selectedQuestions);
+
+        // Groups
+        foreach ($this->test->groups as $group) {
+            $questions = $group->questions;
+            $this->pickQuestions($questions, $this->config[$group->id], $selectedQuestions);
+        }
+
+        return $selectedQuestions;
+    }
+
+    private function calculatePoints($selectedQuestions)
+    {
+        // Calculate Points - Integer Distribution (Largest Remainder Method)
+        $totalWeight = $selectedQuestions->sum('weight');
+        $maxPoints = $this->test->max_points;
+
+        if ($totalWeight > 0) {
+            // 1. Calculate raw points and initial integer allocation
+            $questionsData = $selectedQuestions->map(function ($q) use ($totalWeight, $maxPoints) {
+                $rawPoints = ($q->weight / $totalWeight) * $maxPoints;
+                return [
+                    'question' => $q,
+                    'integer_points' => floor($rawPoints),
+                    'fraction' => $rawPoints - floor($rawPoints),
+                    'original_weight' => $q->weight
+                ];
+            });
+
+            // 2. data structure is now a collection of arrays.
+            // Calculate used points
+            $usedPoints = $questionsData->sum('integer_points');
+            $remainder = $maxPoints - $usedPoints;
+
+            // 3. Sort by fraction descending to distribute remainder
+            // Let's use weight descending as tie-breaker for fairness (bigger questions get the extra point)
+            $sortedKeys = $questionsData->sortByDesc(function ($data) {
+                return $data['fraction'] * 100000 + $data['original_weight'];
+            })->keys();
+
+            // Convert to array to allow modification
+            $questionsDataArray = $questionsData->all();
+
+            // 4. Distribute remainder
+            foreach ($sortedKeys as $index => $key) {
+                if ($remainder > 0) {
+                    $questionsDataArray[$key]['integer_points']++;
+                    $remainder--;
+                } else {
+                    break;
+                }
+            }
+
+            // 5. Map back to question objects
+            return collect($questionsDataArray)->map(function ($data) {
+                $q = clone $data['question'];
+                $q->calculated_points = (int) $data['integer_points'];
+
+                if ($q->type === \App\Enums\QuestionType::CLOSED) {
+                    $q->setRelation('options', $q->options->shuffle());
+                }
+                return $q;
+            })->values();
+        }
+
+        return collect();
     }
 
     private function pickQuestions($pool, $count, &$collection)
