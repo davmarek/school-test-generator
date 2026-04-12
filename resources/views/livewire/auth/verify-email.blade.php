@@ -1,4 +1,4 @@
-<x-layouts.auth>
+<x-layouts::auth>
     <div class="mt-4 flex flex-col gap-6">
         <flux:text class="text-center">
             {{ __('Please verify your email address by clicking on the link we just emailed to you.') }}
@@ -20,10 +20,10 @@
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-               <flux:button variant="ghost" type="submit" class="text-sm cursor-pointer" data-test="logout-button">
+                <flux:button variant="ghost" type="submit" class="text-sm cursor-pointer" data-test="logout-button">
                     {{ __('Log out') }}
                 </flux:button>
             </form>
         </div>
     </div>
-</x-layouts.auth>
+</x-layouts::auth>
