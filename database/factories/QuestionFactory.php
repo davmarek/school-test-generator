@@ -16,7 +16,7 @@ class QuestionFactory extends Factory
         return [
             'test_id' => Test::factory(),
             'group_id' => null,
-            'type' => \App\Enums\QuestionType::OPEN,
+            'type' => \App\Enums\QuestionType::OPEN_LONG,
             'text' => $this->faker->sentence(),
             'weight' => $this->faker->numberBetween(1, 10),
             'is_mandatory' => $this->faker->boolean(),

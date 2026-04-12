@@ -15,11 +15,11 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
-    Route::get('settings/profile', Profile::class)->name('profile.edit');
-    Route::get('settings/password', Password::class)->name('user-password.edit');
-    Route::get('settings/appearance', Appearance::class)->name('appearance.edit');
+    Route::livewire('settings/profile', Profile::class)->name('profile.edit');
+    Route::livewire('settings/password', Password::class)->name('user-password.edit');
+    Route::livewire('settings/appearance', Appearance::class)->name('appearance.edit');
 
-    Route::get('settings/two-factor', TwoFactor::class)
+    Route::livewire('settings/two-factor', TwoFactor::class)
         ->middleware(
             when(
                 Features::canManageTwoFactorAuthentication()
@@ -31,8 +31,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('two-factor.show');
 
     Route::prefix('/tests')->name('tests.')->group(function () {
-        Route::get('/', Tests\Index::class)->name('index');
-        Route::get('/{test}', Tests\Edit::class)->name('edit');
-        Route::get('/{test}/generate', Tests\Generate::class)->name('generate');
+        Route::livewire('/', Tests\Index::class)->name('index');
+        Route::livewire('/{test}', Tests\Edit::class)->name('edit');
+        Route::livewire('/{test}/generate', Tests\Generate::class)->name('generate');
     });
 });

@@ -61,3 +61,41 @@ it('renders checkboxes for multiple choice questions', function () {
     expect($view)->toContain('class="checkbox"');
     expect($view)->not->toContain('class="radio"');
 });
+
+it('renders multiple lines for open questions', function () {
+    $user = User::factory()->create();
+    $test = Test::factory()->create(['user_id' => $user->id]);
+    $question = $test->questions()->create([
+        'type' => QuestionType::OPEN_LONG,
+        'text' => 'Open Question',
+    ]);
+
+    $generatedTests = collect([collect([$question])]);
+
+    $view = (string) view('pdf.test', [
+        'test' => $test,
+        'generatedTests' => $generatedTests,
+    ]);
+
+    $lineCount = substr_count($view, 'class="line-answer"');
+    expect($lineCount)->toBe(3);
+});
+
+it('renders a single line for short open questions', function () {
+    $user = User::factory()->create();
+    $test = Test::factory()->create(['user_id' => $user->id]);
+    $question = $test->questions()->create([
+        'type' => QuestionType::OPEN_SHORT,
+        'text' => 'Short Open Question',
+    ]);
+
+    $generatedTests = collect([collect([$question])]);
+
+    $view = (string) view('pdf.test', [
+        'test' => $test,
+        'generatedTests' => $generatedTests,
+    ]);
+
+    $lineCount = substr_count($view, 'class="line-answer"');
+    expect($lineCount)->toBe(1);
+});

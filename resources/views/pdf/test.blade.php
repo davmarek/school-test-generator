@@ -147,6 +147,7 @@
         .closed-options-table td:nth-child(2) {
             width: 100%;
             padding-bottom: 0.8rem;
+            line-height: 1.2;
         }
 
         .line-answer {
@@ -211,9 +212,11 @@
                                 </tr>
                             @endforeach
                         </table>
-                    @elseif($question->type === QuestionType::OPEN)
+                    @elseif($question->type === QuestionType::OPEN_LONG)
                         <div class="line-answer"></div>
                         <div class="line-answer"></div>
+                        <div class="line-answer"></div>
+                    @elseif($question->type === QuestionType::OPEN_SHORT)
                         <div class="line-answer"></div>
                     @endif
                 </div>

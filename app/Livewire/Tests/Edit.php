@@ -23,7 +23,7 @@ class Edit extends Component
     public $questionForm = [
         'id' => null,
         'group_id' => null,
-        'type' => 'open',
+        'type' => 'open_long',
         'text' => '',
         'weight' => 1,
         'is_mandatory' => false,
@@ -107,7 +107,7 @@ class Edit extends Component
             $this->questionForm = [
                 'id' => null,
                 'group_id' => $groupId,
-                'type' => 'open',
+                'type' => 'open_long',
                 'text' => '',
                 'weight' => 1,
                 'is_mandatory' => false,
@@ -134,7 +134,7 @@ class Edit extends Component
         $this->validate([
             'questionForm.text' => 'required|string',
             'questionForm.weight' => 'required|integer|min:1',
-            'questionForm.type' => 'required|in:open,closed,true_false',
+            'questionForm.type' => 'required|in:open_long,open_short,closed,true_false',
             'questionForm.options.*.text' => 'required_if:questionForm.type,closed,true_false|string',
         ]);
 

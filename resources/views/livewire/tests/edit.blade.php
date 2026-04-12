@@ -39,24 +39,17 @@
     </flux:modal>
 
     <!-- Question Modal -->
-    <flux:modal name="question-modal" class="md:min-w-md space-y-6">
+    <flux:modal name="question-modal" class="w-full md:min-w-2xl lg:min-w-4xl space-y-6">
         <flux:heading size="lg">{{ $questionForm['id'] ? 'Edit Question' : 'Add Question' }}</flux:heading>
 
         <form wire:submit="saveQuestion" class="space-y-4">
-            <div class="sm:hidden">
-                <flux:radio.group label="Type" wire:model.live="questionForm.type">
-                    <flux:radio value="open" label="Open Answer" icon="pencil" />
-                    <flux:radio value="closed" label="Closed Options" icon="list-bullet" />
-                    <flux:radio value="true_false" label="True / False" icon="scale" />
-                </flux:radio.group>
-            </div>
-            <div class="hidden sm:flex">
-                <flux:radio.group label="Type" wire:model.live="questionForm.type" variant="segmented">
-                    <flux:radio value="open" label="Open Answer" icon="pencil" />
-                    <flux:radio value="closed" label="Closed Options" icon="list-bullet" />
-                    <flux:radio value="true_false" label="True / False" icon="scale" />
-                </flux:radio.group>
-            </div>
+            <flux:radio.group label="Type" variant="buttons" wire:model.live="questionForm.type"
+                class="grid grid-cols-2 lg:grid-cols-4">
+                <flux:radio value="open_short" label="Open (Short)" icon="pencil" />
+                <flux:radio value="open_long" label="Open (Long)" icon="pencil" />
+                <flux:radio value="closed" label="Closed Options" icon="list-bullet" />
+                <flux:radio value="true_false" label="True / False" icon="scale" />
+            </flux:radio.group>
             <flux:textarea label="Question Text" wire:model="questionForm.text" rows="3" />
 
 

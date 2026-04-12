@@ -51,7 +51,7 @@ it('can create a question', function () {
         ->set('questionForm', [
             'id' => null,
             'group_id' => null,
-            'type' => 'open',
+            'type' => 'open_long',
             'text' => 'What is 2+2?',
             'weight' => 5,
             'is_mandatory' => true,
@@ -72,7 +72,7 @@ it('generates pdf', function () {
     $user = User::factory()->create();
     $test = Test::factory()->create(['user_id' => $user->id]);
     $question = $test->questions()->create([
-        'type' => 'open',
+        'type' => 'open_long',
         'text' => 'Q1',
         'weight' => 10,
         'is_mandatory' => true,
@@ -139,7 +139,7 @@ it('calculates integer points correctly', function () {
         'test_id' => $test->id,
         'weight' => 1,
         'is_mandatory' => true,
-        'type' => 'open',
+        'type' => 'open_long',
     ]);
 
     Livewire::actingAs($user)
