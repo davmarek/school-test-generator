@@ -1,10 +1,3 @@
-<?php
-
-use Illuminate\Support\Facades\Auth;
-use Livewire\Volt\Component;
-
-?>
-
 <div class="py-6">
     <div class="flex justify-between items-center mb-6">
         <flux:heading size="xl" level="1">My Tests</flux:heading>
